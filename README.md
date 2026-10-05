@@ -245,7 +245,7 @@ Sysmon Event ID 1 - notepad.exe
 
 ---
 
-### Step 6 — Install and Configure Elastic Agent
+## Step 6 — Install and Configure Elastic Agent
 
 Elastic Agent was introduced as the collection and forwarding component between the Windows endpoint and Elasticsearch.
 
@@ -268,7 +268,7 @@ Windows 10
        Kibana
 ```
 
-#### Step 6.1 — Create a Standalone Agent Policy in Kibana
+### Step 6.1 — Create a Standalone Agent Policy in Kibana
 
 Kibana was used to create an initial standalone Agent policy.
 
@@ -295,7 +295,7 @@ Agent Policy - Detection-Lab-Windows
 ![Agent Policies](images/agent_policies.png)
 
 
-#### Step 6.2 — Select Standalone Mode
+### Step 6.2 — Select Standalone Mode
 
 Kibana was used to create the initial Elastic Agent policy.
 
@@ -313,7 +313,7 @@ The Agent was therefore not enrolled into Fleet. Configuration changes were made
 
 
 
-#### Step 6.3 — Configure Elasticsearch Output
+### Step 6.3 — Configure Elasticsearch Output
 
 
 The standalone Agent configuration was stored on Windows at:
@@ -339,7 +339,7 @@ A dedicated API key was created for the Agent with permissions required to monit
 The API key was then configured in the Agent output.
 
 
-#### Step 6.4 — Install Elastic Agent on Windows
+### Step 6.4 — Install Elastic Agent on Windows
 
 The Elastic Agent package was extracted on the Windows VM.
 
@@ -357,7 +357,7 @@ The installed configuration is located at:
 C:\Program Files\Elastic\Agent\elastic-agent.yml
 ```
 
-#### Step 6.5 — Verify Elastic Agent
+### Step 6.5 — Verify Elastic Agent
 
 The Agent configuration was inspected using:
 
@@ -377,7 +377,7 @@ The Agent status was then checked:
 ![Agent Policies](images/agent_status_healthy.png)
 
 
-#### Step 6.6 — Configure Windows System Metrics 
+### Step 6.6 — Configure Windows System Metrics 
 
 The standalone configuration initially included the system/metrics input:
 
@@ -409,7 +409,7 @@ This allowed the Agent to collect basic host metrics and also provided an initia
 The resulting metrics were observed in Kibana, confirming that the Agent-to-Elasticsearch pipeline was functioning.
 
 
-#### Step 6.7 — Configure Sysmon Collection
+### Step 6.7 — Configure Sysmon Collection
 
 After confirming that the Agent was healthy and communicating with Elasticsearch, a winlog input was added to collect the Sysmon Windows Event Log channel.
 
@@ -437,22 +437,16 @@ The winlog input reads Windows Event Logs through the Windows Event Log API and 
 After applying this configuration I validated the agent status to check if it's still "Healthy"
 
 
-#### Step 6.8 — Verify Sysmon Ingestion
+### Step 6.8 — Verify Sysmon Ingestion
 
 Once the Sysmon input was enabled, Sysmon events started appearing in Elasticsearch/Kibana.
 
-The events were observed under the dataset:
-
-```
-windows.sysmon_operational
-```
-
-Kibana Discover showing windows.sysmon_operational events:
+Kibana Discover showing **windows.sysmon_operational** events:
 
 ![Sysmon Events](images/sysmon_operational.png)
 
 
-### Step 7 — Log Ingestion & Normalization
+## Step 7 — Log Ingestion & Normalization
 
 * Verify events arriving in Elasticsearch
 * Explore events in Kibana Discover
@@ -467,13 +461,13 @@ Kibana Discover showing windows.sysmon_operational events:
   * `source.ip`
   * `destination.ip`
 
-### Step 8 — Detection Engineering
+## Step 8 — Detection Engineering
 
 Detections are developed through a repeatable detection engineering workflow.
 
 Each detection is implemented, simulated, validated, investigated, tuned, mapped to MITRE ATT&CK, and documented in a dedicated detection playbook.
 
-#### Detection Workflow
+### Detection Workflow
 
 ```text
 Define Behavior
@@ -495,7 +489,7 @@ Tuning
 Documentation
 ```
 
-#### Implemented Detections
+### Implemented Detections
 
 | Detection              | Data Source      | Event ID | MITRE ATT&CK        | Status    |
 | ---------------------- | ---------------- | -------: | ------------------- | --------- |
@@ -503,7 +497,7 @@ Documentation
 
 Detailed detection logic, simulation procedures, investigation steps, false-positive considerations, tuning, and response guidance are maintained in individual **Detection Playbooks** under [`docs/detections/`](docs/detections/).
 
-#### Example Detection — Multiple Failed Logons
+### Example Detection — Multiple Failed Logons
 
 The **Multiple Failed Logons** detection is used as the first example of the complete detection engineering workflow.
 
@@ -532,7 +526,7 @@ The complete implementation and investigation details are documented in the corr
 
 ---
 
-### Step 9 — Attack Simulation
+## Step 9 — Attack Simulation
 
 Controlled simulations are performed to generate telemetry representing different adversary behaviors.
 
@@ -551,7 +545,7 @@ The first completed simulation involved repeated failed authentication attempts 
 
 ---
 
-### Step 10 — Detection Validation
+## Step 10 — Detection Validation
 
 Each detection is validated by following the complete telemetry-to-alert pipeline:
 
@@ -589,7 +583,7 @@ The screenshot above is provided as an **example of the validation process**. De
 
 ---
 
-### Step 11 — Investigation & Response
+## Step 11 — Investigation & Response
 
 Generated alerts are investigated in Kibana to determine the context and potential significance of the detected behavior.
 
@@ -631,7 +625,7 @@ Detailed investigation and response procedures are documented within each detect
 
 ---
 
-### Step 12 — Documentation
+## Step 12 — Documentation
 
 Each detection is documented in a dedicated **Detection Playbook**.
 
