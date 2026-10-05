@@ -454,22 +454,7 @@ Kibana Discover showing **windows.security** events:
 
 
 
-## Step 7 — Log Ingestion & Normalization
-
-* Verify events arriving in Elasticsearch
-* Explore events in Kibana Discover
-* Validate ECS fields
-* Investigate fields such as:
-
-  * `host.name`
-  * `agent.name`
-  * `event.code`
-  * `process.name`
-  * `process.command_line`
-  * `source.ip`
-  * `destination.ip`
-
-## Step 8 — Detection Engineering
+## Step 7 — Detection Engineering
 
 Detections are developed through a repeatable detection engineering workflow.
 
@@ -511,30 +496,19 @@ The **Multiple Failed Logons** detection is used as the first example of the com
 
 The detection uses Windows Security Event ID `4625`, generated when a Windows logon attempt fails.
 
-The KQL query used for the detection is:
+The detection uses the following KQL query and threshold configuration:
 
-```kql
-event.code: "4625"
-```
+![Rule definition](images/rule_definition.png)
 
-The rule was configured as an **Elasticsearch query** rule using the `logs-*` data view.
+Therefore, the rule generates an alert when **5 or more failed logon events** are observed within a five-minute window on a single account.
 
-Detection threshold:
-
-```text
-More than 4 events
-Within 5 minutes
-```
-
-Therefore, the rule generates an alert when **5 or more failed logon events** are observed within a five-minute window.
-
-The detection is mapped to **MITRE ATT&CK T1110 — Brute Force**, as repeated failed authentication attempts may indicate brute-force activity. The detection itself does not prove that a brute-force attack was successful.
+The detection is mapped to **MITRE ATT&CK T1110 — Brute Force**, as repeated failed authentication attempts may indicate brute-force activity. The detection itself does not confirm that a brute-force attack occurred.
 
 The complete implementation and investigation details are documented in the corresponding [Detection Playbook](docs/detections/windows-multiple-failed-logons.md).
 
 ---
 
-## Step 9 — Attack Simulation
+## Step 8 — Attack Simulation
 
 Controlled simulations are performed to generate telemetry representing different adversary behaviors.
 
@@ -553,7 +527,7 @@ The first completed simulation involved repeated failed authentication attempts 
 
 ---
 
-## Step 10 — Detection Validation
+## Step 9 — Detection Validation
 
 Each detection is validated by following the complete telemetry-to-alert pipeline:
 
@@ -583,7 +557,7 @@ Document count is 5 in the last 5m in logs-* data view.
 Alert when greater than 4.
 ```
 
-![Alert Windows Failed Logons](images/alert_Window_Multiple_Failed.png)
+![Alert Windows Failed Logons](images/alert_Windows _Multiple_Failed.png)
 
 This confirmed that the simulated behavior generated the expected Windows telemetry and successfully triggered the detection.
 
@@ -591,7 +565,7 @@ The screenshot above is provided as an **example of the validation process**. De
 
 ---
 
-## Step 11 — Investigation & Response
+## Step 10 — Investigation & Response
 
 Generated alerts are investigated in Kibana to determine the context and potential significance of the detected behavior.
 
@@ -600,28 +574,13 @@ Investigation activities may include:
 * Reviewing the underlying telemetry
 * Identifying the affected host
 * Identifying the targeted account
-* Identifying the source of the activity
+* Identifying the reported source
 * Correlating related events
 * Checking for successful authentication following failed attempts
 * Identifying activity against other accounts
 * Determining whether the behavior is expected or suspicious
-* Mapping the observed behavior to MITRE ATT&CK
 
-Relevant Windows Security fields may include:
-
-```text
-event.code
-event.action
-event.outcome
-host.name
-host.ip
-winlog.event_data.TargetUserName
-winlog.event_data.IpAddress
-winlog.event_data.LogonType
-winlog.event_data.WorkstationName
-```
-
-Response actions are determined according to the investigation results and may include:
+Potential response actions, depending on the investigation results and organizational procedures, may include:
 
 * Blocking or containing the source
 * Disabling or locking an affected account
@@ -631,9 +590,14 @@ Response actions are determined according to the investigation results and may i
 
 Detailed investigation and response procedures are documented within each detection playbook.
 
+The following screenshot shows the Windows Security events ingested into Elastic and the fields used during the investigation.
+
+![Elastic Logs](images/Elastic_Logs_4625.png)
+
+
 ---
 
-## Step 12 — Documentation
+## Step 11 — Documentation
 
 Each detection is documented in a dedicated **Detection Playbook**.
 
