@@ -297,14 +297,23 @@ Agent Policy - Detection-Lab-Windows
 
 #### Step 6.2 — Select Standalone Mode
 
-In the Kibana Agent setup, Run standalone was selected.
+Kibana was used to create the initial Elastic Agent policy.
 
-This mode provides the configuration required to install Elastic Agent locally on the Windows machine.
+A dedicated policy named `Detection-Lab-Windows` was created.
 
-The Agent package and standalone configuration were downloaded/provided through Kiba
+During the Agent setup, the **Run standalone** option was selected. This provided the standalone policy configuration and installation instructions for the Windows host.
+
+Unlike Fleet-managed Agents, the standalone Agent is configured and managed locally through:
+
+```text
+C:\Program Files\Elastic\Agent\elastic-agent.yml
+```
+
+The Agent was therefore not enrolled into Fleet. Configuration changes were made directly to the local policy file.
 
 
-### Step 6.3 — Configure Elasticsearch Output
+
+#### Step 6.3 — Configure Elasticsearch Output
 
 
 The standalone Agent configuration was stored on Windows at:
@@ -423,8 +432,7 @@ The Agent configuration was:
         type: logs
 ```
 
-The winlog input reads Windows Event Logs through the Windows Event Log API and forwards the events to the configured output.
-https://www.elastic.co/docs/reference/fleet/elastic-agent-inputs-list
+The winlog input reads Windows Event Logs through the Windows Event Log API and forwards the events to the configured output - https://www.elastic.co/docs/reference/fleet/elastic-agent-inputs-list
 
 After applying this configuration I validated the agent status to check if it's still "Healthy"
 
@@ -444,8 +452,6 @@ Kibana Discover showing windows.sysmon_operational events:
 ![Sysmon Events](images/sysmon_operational.png)
 
 
-
-
 ### Step 7 — Log Ingestion & Normalization
 
 * Verify events arriving in Elasticsearch
@@ -463,14 +469,74 @@ Kibana Discover showing windows.sysmon_operational events:
 
 ### Step 8 — Detection Engineering
 
-* Create detection rules
-* Implement Sigma rules
-* Map detections to MITRE ATT&CK
-* Tune detections and reduce false positives
+Detections are developed through a repeatable detection engineering workflow.
+
+Each detection is implemented, simulated, validated, investigated, tuned, mapped to MITRE ATT&CK, and documented in a dedicated detection playbook.
+
+#### Detection Workflow
+
+```text
+Define Behavior
+      ↓
+Identify Telemetry
+      ↓
+Implement Detection
+      ↓
+Attack Simulation
+      ↓
+Detection Validation
+      ↓
+Alert Investigation
+      ↓
+MITRE ATT&CK Mapping
+      ↓
+Tuning
+      ↓
+Documentation
+```
+
+#### Implemented Detections
+
+| Detection              | Data Source      | Event ID | MITRE ATT&CK        | Status    |
+| ---------------------- | ---------------- | -------: | ------------------- | --------- |
+| Multiple Failed Logons | Windows Security |     4625 | T1110 — Brute Force | Validated |
+
+Detailed detection logic, simulation procedures, investigation steps, false-positive considerations, tuning, and response guidance are maintained in individual **Detection Playbooks** under [`docs/detections/`](docs/detections/).
+
+#### Example Detection — Multiple Failed Logons
+
+The **Multiple Failed Logons** detection is used as the first example of the complete detection engineering workflow.
+
+The detection uses Windows Security Event ID `4625`, generated when a Windows logon attempt fails.
+
+The KQL query used for the detection is:
+
+```kql
+event.code: "4625"
+```
+
+The rule was configured as an **Elasticsearch query** rule using the `logs-*` data view.
+
+Detection threshold:
+
+```text
+More than 4 events
+Within 5 minutes
+```
+
+Therefore, the rule generates an alert when **5 or more failed logon events** are observed within a five-minute window.
+
+The detection is mapped to **MITRE ATT&CK T1110 — Brute Force**, as repeated failed authentication attempts may indicate brute-force activity. The detection itself does not prove that a brute-force attack was successful.
+
+The complete implementation and investigation details are documented in the corresponding [Detection Playbook](docs/detections/windows-multiple-failed-logons.md).
+
+---
 
 ### Step 9 — Attack Simulation
 
-Controlled simulations will be performed to generate telemetry for:
+Controlled simulations are performed to generate telemetry representing different adversary behaviors.
+
+Planned simulation categories include:
 
 * Failed authentication
 * Suspicious PowerShell
@@ -479,9 +545,15 @@ Controlled simulations will be performed to generate telemetry for:
 * Network activity
 * Other controlled adversary behaviors
 
+Each simulation is associated with one or more detection playbooks and is performed in the isolated Windows laboratory environment.
+
+The first completed simulation involved repeated failed authentication attempts against the Windows 10 lab machine, generating Event ID `4625` telemetry.
+
+---
+
 ### Step 10 — Detection Validation
 
-For each simulated behavior:
+Each detection is validated by following the complete telemetry-to-alert pipeline:
 
 ```text
 Attack
@@ -497,25 +569,91 @@ Investigation
 Response
 ```
 
+As an example, the **Multiple Failed Logons** detection was validated by generating five failed authentication attempts.
+
+The resulting Elasticsearch query alert reported:
+
+```text
+Evaluation threshold: 4
+
+Reason:
+Document count is 5 in the last 5m in logs-* data view.
+Alert when greater than 4.
+```
+
+![Alert Windows Failed Logons](images/alert_Window_Multiple_Failed.png)
+
+This confirmed that the simulated behavior generated the expected Windows telemetry and successfully triggered the detection.
+
+The screenshot above is provided as an **example of the validation process**. Detailed evidence and investigation results for each detection are maintained in their respective playbooks.
+
+---
+
 ### Step 11 — Investigation & Response
 
-* Investigate alerts in Kibana
-* Correlate related events
-* Identify MITRE ATT&CK techniques
-* Document findings
-* Define appropriate response actions
+Generated alerts are investigated in Kibana to determine the context and potential significance of the detected behavior.
+
+Investigation activities may include:
+
+* Reviewing the underlying telemetry
+* Identifying the affected host
+* Identifying the targeted account
+* Identifying the source of the activity
+* Correlating related events
+* Checking for successful authentication following failed attempts
+* Identifying activity against other accounts
+* Determining whether the behavior is expected or suspicious
+* Mapping the observed behavior to MITRE ATT&CK
+
+Relevant Windows Security fields may include:
+
+```text
+event.code
+event.action
+event.outcome
+host.name
+host.ip
+winlog.event_data.TargetUserName
+winlog.event_data.IpAddress
+winlog.event_data.LogonType
+winlog.event_data.WorkstationName
+```
+
+Response actions are determined according to the investigation results and may include:
+
+* Blocking or containing the source
+* Disabling or locking an affected account
+* Resetting credentials
+* Investigating the originating host
+* Escalating the incident for further investigation
+
+Detailed investigation and response procedures are documented within each detection playbook.
+
+---
 
 ### Step 12 — Documentation
 
-The final lab documentation will include:
+Each detection is documented in a dedicated **Detection Playbook**.
 
-* Architecture
-* Attack simulations
-* Telemetry generated
-* Detection rules
-* MITRE ATT&CK mappings
-* Investigation process
+The playbooks provide a consistent structure for documenting:
+
+* Detection objective
+* Data source
+* Event IDs
+* Detection logic
+* MITRE ATT&CK mapping
+* Attack simulation
+* Expected telemetry
+* Detection validation
+* Investigation procedure
+* False-positive considerations
+* Tuning
 * Response actions
-* Screenshots
-* Results and limitations
+* Evidence
+
+This README provides an overview of the detection engineering process and implemented detections, while the individual playbooks contain the detailed technical documentation for each detection.
+
+The first playbook is:
+
+**[Windows — Multiple Failed Logons](docs/detections/windows-multiple-failed-logons.md)**
 
