@@ -185,30 +185,6 @@ Sysmon64.exe -accepteula -i
 
 Sysmon was installed using its default configuration.
 
-### Validate Sysmon Service
-
-```cmd
-sc query Sysmon64
-```
-
-Expected state:
-
-```text
-STATE: 4  RUNNING
-```
-
-### Validate Sysmon Driver
-
-```cmd
-sc query SysmonDrv
-```
-
-Expected state:
-
-```text
-STATE: 4  RUNNING
-```
-
 ### Verify Sysmon Events
 
 Open Event Viewer:
@@ -436,14 +412,46 @@ The winlog input reads Windows Event Logs through the Windows Event Log API and 
 
 After applying this configuration I validated the agent status to check if it's still "Healthy"
 
-
-### Step 6.8 — Verify Sysmon Ingestion
+**Verify Sysmon Ingestion**:
 
 Once the Sysmon input was enabled, Sysmon events started appearing in Elasticsearch/Kibana.
 
 Kibana Discover showing **windows.sysmon_operational** events:
 
 ![Sysmon Events](images/sysmon_operational.png)
+
+
+### Step 6.8 — Configure Windows Security Event Collection
+
+After confirming that Sysmon events were being successfully ingested, the standalone Agent configuration was extended to collect the Windows **Security** Event Log.
+
+The Windows Security log contains authentication, account, process, and other security-related events that are important for detection engineering.
+
+The Agent configuration was:
+
+```yaml
+- type: winlog
+  id: security
+  use_output: default
+  streams:
+    - name: Security
+      data_stream:
+        dataset: windows.security
+        type: logs
+```
+
+The `winlog` input reads events from the Windows Event Log and forwards them to the configured Elasticsearch output.
+
+After applying the configuration, the Agent status was checked again to confirm that it remained **Healthy**.
+
+**Verify Windows Security Ingestion:**
+
+Once the Security input and audit policies were configured, Windows Security events started appearing in Elasticsearch/Kibana.
+
+Kibana Discover showing **windows.security** events:
+
+![Windows Security Events](images/windows_security.png)
+
 
 
 ## Step 7 — Log Ingestion & Normalization
