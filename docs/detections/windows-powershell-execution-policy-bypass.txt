@@ -1,0 +1,37 @@
+# Windows — PowerShell Execution Policy Bypass
+
+## 1. Objective
+
+
+---
+
+## 2. Rule Configuration and Detection Logic
+
+The detection uses the Windows **Security** Event Log collected by Elastic Agent.
+
+The detection was implemented in Kibana using a **Custom threshold** rule.
+
+### KQL
+
+```kql
+event.code: "1"
+```
+
+### Rule Configuration
+
+| Setting        | Value                              |
+| -------------- | ---------------------------------- |
+| Data view      | `logs-*`                           |
+| Query          | `event.code: "1" AND winlog.event_data.Image: *powershell.exe AND winlog.event_data.CommandLine: *-ExecutionPolicy* AND winlog.event_data.CommandLine: *Bypass*` |
+| Condition      | Count above or equals 1            |
+| Time window    | 5 minutes                          |
+| Check interval | 1 minute                           |
+| Rule name      | `Windows - Multiple Failed`        |
+
+The rule generates an alert when **1 or more Event ID 1 events** are observed within a 5-minute window.
+
+The threshold is configured as **above or equals 1**, meaning that only one event is required to trigger the alert.
+
+---
+
+

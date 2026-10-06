@@ -547,17 +547,7 @@ Response
 
 As an example, the **Multiple Failed Logons** detection was validated by generating five failed authentication attempts.
 
-The resulting Elasticsearch query alert reported:
-
-```text
-Evaluation threshold: 4
-
-Reason:
-Document count is 5 in the last 5m in logs-* data view.
-Alert when greater than 4.
-```
-
-![Alert Windows Failed Logons](images/alert_Windows _Multiple_Failed.png)
+![Alert Windows Failed ](images/alert_Windows_Multiple_Failed.png)
 
 This confirmed that the simulated behavior generated the expected Windows telemetry and successfully triggered the detection.
 

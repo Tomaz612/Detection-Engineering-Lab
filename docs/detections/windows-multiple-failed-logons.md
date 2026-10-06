@@ -8,32 +8,9 @@ The detection is based on Windows Security **Event ID 4625**, generated when a l
 
 ---
 
-## 2. Data Source
-
-### Windows Security Event Log
+## 2. Rule Configuration and Detection Logic
 
 The detection uses the Windows **Security** Event Log collected by Elastic Agent.
-
-The required Windows audit policies were configured to generate authentication-related telemetry.
-
-Relevant audit policies include:
-
-* Account Logon → Credential Validation
-* Logon/Logoff → Logon → Success + Failure
-* Logon/Logoff → Logoff → Success
-* Account Lockout → Failure
-
-The events are ingested into the:
-
-```text
-windows.security
-```
-
-dataset.
-
----
-
-## 3. Detection Logic
 
 The detection was implemented in Kibana using a **Custom threshold** rule.
 
@@ -61,7 +38,7 @@ The threshold is configured as **above 4**, meaning that 5 events are required t
 
 ---
 
-## 4. MITRE ATT&CK Mapping
+## 3. MITRE ATT&CK Mapping
 
 ### T1110 — Brute Force
 
@@ -75,32 +52,14 @@ The MITRE mapping therefore represents the **behavior being detected**, rather t
 
 ---
 
-## 5. Attack Simulation
-
-To validate the detection, controlled failed authentication attempts were generated against the Windows 10 lab VM.
+## 4. Attack Simulation and Detection Validation
 
 Five incorrect authentication attempts were performed within a five-minute period, generating multiple Windows Security Event ID 4625 events.
 
-Expected event:
+The generated 4625 events were successfully ingested into Elasticsearch and detected by the Kibana rule. The rule generated an alert confirming that the threshold condition was met.
 
-```text
-Event ID: 4625
-```
+![Multiple Failed Logons Alert](../../images/alert_Windows_Multiple_Failed.png)
 
-The generated events satisfied the detection condition:
-
-```text
-5 events > 4
-within 5 minutes
-```
-
----
-
-## 6. Detection Validation
-
-The generated 4625 events were successfully ingested into Elasticsearch and detected by the Kibana rule.
-
-The rule generated an alert confirming that the threshold condition was met.
 
 This validated the complete detection pipeline:
 
@@ -111,13 +70,9 @@ This validated the complete detection pipeline:
 5. The threshold condition was met.
 6. An alert was generated.
 
-### Alert Evidence
-
-![Multiple Failed Logons Alert](../../images/alert_Windows_Multiple_Failed.png)
-
 ---
 
-## 7. Investigation
+## 5. Investigation
 
 The individual 4625 events should be investigated to determine whether the activity is expected or suspicious.
 
@@ -156,7 +111,7 @@ The following screenshot shows the Windows Security events ingested into Elastic
 
 ---
 
-## 8. False Positives
+## 6. False Positives
 
 Multiple failed logons can occur for legitimate reasons, including:
 
@@ -170,7 +125,7 @@ The detection should therefore be treated as a **suspicious authentication signa
 
 ---
 
-## 9. Response Considerations
+## 7. Response Considerations
 
 If triggered in a production environment, the alert should be investigated before taking containment actions.
 
@@ -185,7 +140,7 @@ The investigation should include:
 
 ---
 
-## 10. Limitations
+## 8. Limitations
 
 * The rule does not currently correlate failed and successful authentication events.
 * Legitimate activity can generate multiple failed logons.
