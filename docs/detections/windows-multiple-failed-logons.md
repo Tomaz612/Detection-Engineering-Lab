@@ -14,18 +14,12 @@ The detection uses the Windows **Security** Event Log collected by Elastic Agent
 
 The detection was implemented in Kibana using a **Custom threshold** rule.
 
-### KQL
-
-```kql
-event.code: "4625"
-```
-
 ### Rule Configuration
 
 | Setting        | Value                              |
 | -------------- | ---------------------------------- |
 | Data view      | `logs-*`                           |
-| Query          | `event.code: "4625"`               |
+| KQL Query      | `event.code: "4625"`               |
 | Condition      | Count above 4                      |
 | Time window    | 5 minutes                          |
 | Group alerts   | `winlog.event_data.TargetUserName` |
@@ -59,7 +53,6 @@ Five incorrect authentication attempts were performed within a five-minute perio
 The generated 4625 events were successfully ingested into Elasticsearch and detected by the Kibana rule. The rule generated an alert confirming that the threshold condition was met.
 
 ![Multiple Failed Logons Alert](../../images/alert_Windows_Multiple_Failed.png)
-
 
 This validated the complete detection pipeline:
 
@@ -111,21 +104,7 @@ The following screenshot shows the Windows Security events ingested into Elastic
 
 ---
 
-## 6. False Positives
-
-Multiple failed logons can occur for legitimate reasons, including:
-
-* Users repeatedly entering an incorrect password
-* Forgotten or recently changed passwords
-* Applications using outdated credentials
-* Scheduled tasks or services using invalid credentials
-* Administrative troubleshooting
-
-The detection should therefore be treated as a **suspicious authentication signal**, rather than a confirmed attack.
-
----
-
-## 7. Response Considerations
+## 6. Response Considerations
 
 If triggered in a production environment, the alert should be investigated before taking containment actions.
 
@@ -140,7 +119,9 @@ The investigation should include:
 
 ---
 
-## 8. Limitations
+## 7. Limitations
+
+The detection has some limitations:
 
 * The rule does not currently correlate failed and successful authentication events.
 * Legitimate activity can generate multiple failed logons.
@@ -149,7 +130,7 @@ The investigation should include:
 
 ---
 
-## 11. Status
+## 8. Status
 
 **Status:** Validated
 

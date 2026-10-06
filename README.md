@@ -487,8 +487,10 @@ Documentation
 | Detection              | Data Source      | Event ID | MITRE ATT&CK        | Status    |
 | ---------------------- | ---------------- | -------: | ------------------- | --------- |
 | Multiple Failed Logons | Windows Security |     4625 | T1110 — Brute Force | Validated |
+| PowerShell Execution Policy Bypass | Windows Security | 1 | T1110 — Brute Force | Validated |
 
 Detailed detection logic, simulation procedures, investigation steps, false-positive considerations, tuning, and response guidance are maintained in individual **Detection Playbooks** under [`docs/detections/`](docs/detections/).
+
 
 ### Example Detection — Multiple Failed Logons
 
