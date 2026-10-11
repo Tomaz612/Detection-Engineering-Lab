@@ -8,41 +8,16 @@ The goal is to build **practical, testable and explainable detections** and vali
 
 ## Architecture
 
-```text
-┌──────────────────────┐
-│     Windows VM       │
-│                      │
-│ Windows Event Logs   │
-│ Sysmon               │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│    Elastic Agent     │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│    Elasticsearch     │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│       Kibana         │
-│                      │
-│ Detection & Alerting │
-│ Investigation        │
-└──────────────────────┘
-```
+![Architecture](images/arquitetura.png)
 
 ---
 
 ## Detections
 
-| ID      | Detection                                                                                           | Data Source           | MITRE ATT&CK           | Status      |
-| ------- | --------------------------------------------------------------------------------------------------- | --------------------- | ---------------------- | ----------- |
-| DET-001 | [Multiple Failed Logons](detections/windows-multiple-failed-logons.md)                              | Windows Security 4625 | T1110 — Brute Force    | ✅ Validated |
-| DET-002 | [PowerShell Execution Policy Bypass](detections/windows-powershell-execution-policy-bypass.md)      | Sysmon 1              | T1059.001 — PowerShell | ✅ Validated |
+| ID      | Detection                                                                                           | Data Source           | MITRE ATT&CK            | Status      |
+| ------- | --------------------------------------------------------------------------------------------------- | --------------------- | ----------------------- | ----------- |
+| DET-001 | [Multiple Failed Logons](detections/DET-001-windows-multiple-failed-logons.md)                              | Windows Security 4625 | T1110.001 — Brute Force | ✅ Validated |
+| DET-002 | [PowerShell Execution Policy Bypass](detections/DET-002-windows-powershell-execution-policy-bypass.md)      | Sysmon 1              | T1059.001 — PowerShell  | ✅ Validated |
 
 More detections will be added as the laboratory evolves.
 
